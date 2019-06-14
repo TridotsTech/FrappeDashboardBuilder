@@ -1,0 +1,24 @@
+<div class="row">
+	{% if content %}
+	{% for item in content %}
+	<div class="{% if item.size=="Full Width" %}col-md-12{% else %}col-md-6{% endif %} fcharts">
+		<div class="chart_box" id="{{item.id}}"></div>
+	</div>
+	{% endif %}
+	{% endif %}
+</div>
+<style type="text/css">
+	#charts .row{
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.fcharts{		
+		padding-left: 0;
+		padding-right: 0;
+		padding: 10px;
+	}
+	.fcharts .chart_box{
+		padding: 10px;
+		border: 1px solid #ccc;
+	}
+</style>

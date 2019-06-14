@@ -1,0 +1,25 @@
+<div class="row">
+	{% if content %}
+	{% for item in content %}
+	<div class="{% if item.size=="4" %}col-md-3{% else %}{% if item.size=="3" %}col-md-4{% else %}col-md-6{% endif %}{% endif %}">
+		<div class="box" {% if item.css %}style="{{item.css}}"{% endif %}>
+			<div>
+				<h5>{{item.count}}</h5>
+			</div>
+			<div>
+				<p>{{item.title}}</p>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+	{% endif %}
+</div>
+<style type="text/css">
+	.box{
+		/*border: 1px solid #ccc;*/
+    	padding: 10px 15px;
+	}
+	.box h5{
+		font-size: 25px;
+	}
+</style>

@@ -1,0 +1,43 @@
+<div class="row" style="display:none;">	
+	{% if content %}
+	{% for item in content %}
+	<div class="{% if item.size=="Full Width" %}col-md-12{% else %}col-md-6{% endif %}">
+		<h5>{{item.title}}</h5>
+		<div style="display: none;">	
+							
+		</div>
+		<div id="{{item.id}}"></div>
+	</div>
+	{% endfor %}{% endif %}
+	<div class="col-md-6">
+		<div id="example1"></div>
+	</div>
+</div>
+<div>
+	<div id=""></div>
+</div>
+<style type="text/css">
+	.table thead tr{
+		background: #e2e2e2;
+	}
+	.table thead tr th{
+		border-bottom: 0;
+		text-transform: capitalize;
+	}
+	#listing .row{
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.dt-cell__content{
+		padding: 7px !important;
+	}
+	.dt-row:last-child:not(.dt-row-filter) .dt-cell__content{
+		padding: 6px !important;
+	}
+	.dt-row-header .dt-cell__content {
+		text-transform: capitalize;
+	}
+	.dt-row-header{
+		border-bottom: 0 !important;
+	}
+</style>

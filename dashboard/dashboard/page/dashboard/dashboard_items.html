@@ -1,0 +1,38 @@
+{% if content %}
+<div class="row">
+    {% for item in content %}
+    <div class="col-md-{{item.column_width}} list">
+        {% if item.type=="Counter" %}
+            {% if item.counter_list %}
+            <div class="row">
+                {% for c in item.counter_list %}
+                <div class="{% if item.no_of_counters=="4" %}col-md-3{% else %}{% if item.no_of_counters=="3" %}col-md-4{% else %}col-md-6{% endif %}{% endif %}">
+                    <div class="box" {% if c.css %}style="{{c.css}}"{% endif %}>
+                        <div>
+                            <h5>{{c.count}}</h5>
+                        </div>
+                        <div>
+                            <p>{{c.title}}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% else %}
+            {% if item.type=="Graph" %}
+                {% if item.graph %}
+                <div class="fcharts">
+                    <div class="chart_box" id="{{item.graph.id}}"></div>
+                </div>
+                {% endif %}
+            {% else %}
+                {% if item.table %}
+                <div id="{{item.table.id}}" class="table-items"></div>            
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

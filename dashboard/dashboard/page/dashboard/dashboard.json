@@ -1,0 +1,23 @@
+{
+ "content": null, 
+ "creation": "2018-09-21 18:27:44.864116", 
+ "docstatus": 0, 
+ "doctype": "Page", 
+ "idx": 0, 
+ "modified": "2018-09-21 18:28:11.142433", 
+ "modified_by": "Administrator", 
+ "module": "Dashboard", 
+ "name": "dashboard", 
+ "owner": "Administrator", 
+ "page_name": "Dashboard", 
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ], 
+ "script": null, 
+ "standard": "Yes", 
+ "style": null, 
+ "system_page": 0, 
+ "title": "Dashboard"
+}
