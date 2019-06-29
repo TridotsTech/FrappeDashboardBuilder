@@ -2,63 +2,72 @@
 <div class="maindiv">	
 </div>
 <style type="text/css">
-	.maindiv{
+	#page-dashboard .maindiv{
 		margin-right: 10px;
 	}
-	.layout-main-section-wrapper{		
+	#page-dashboard .layout-main-section-wrapper{		
 		margin-bottom: 25px;
 	}
-	#counters{
+	#page-dashboard #page-dashboard #counters{
 		padding: 10px;
 	}
-	.table thead tr{
+	#page-dashboard .table thead tr{
 		background: #e2e2e2;
 	}
-	.table thead tr th{
+	#page-dashboard .table thead tr th{
 		border-bottom: 0;
 		text-transform: capitalize;
 	}
-	#listing .row{
+	#page-dashboard #listing .row{
 		margin-left: 0;
 		margin-right: 0;
 	}
-	.dt-cell__content{
+	#page-dashboard .dt-cell__content{
 		padding: 7px !important;
 	}
-	.dt-row:last-child:not(.dt-row-filter) .dt-cell__content{
+	#page-dashboard .dt-row:last-child:not(.dt-row-filter) .dt-cell__content{
 		padding: 6px !important;
 	}
-	.dt-row-header .dt-cell__content {
+	#page-dashboard .dt-row-header .dt-cell__content {
 		text-transform: capitalize;
 	}
-	.dt-row-header{
+	#page-dashboard .dt-row-header{
 		border-bottom: 0 !important;
 	}
-	.box{
-		/*border: 1px solid #ccc;*/
+	#page-dashboard .box{
 		padding: 10px 15px;
 		margin-bottom: 10px;
 	}
-	.box h5{
+	#page-dashboard .box h5{
 		font-size: 25px;
 	}
-	#charts .row{
+	#page-dashboard #charts .row{
 		margin-left: 0;
 		margin-right: 0;
 	}
-	.fcharts{		
+	#page-dashboard .fcharts{		
 		padding-left: 0;
 		padding-right: 0;
 		padding: 10px;
 	}
-	.fcharts .chart_box{
+	#page-dashboard .fcharts .chart_box{
 		padding: 10px;
 		border: 1px solid #ccc;
 	}
-	.list{
+	#page-dashboard .list{
 		margin-bottom: 10px;
 	}
+	@media screen and (min-width: 1200px){
+		#page-dashboard .cols-5{
+			width:20% !important;
+		}
+	}
+	@media screen and (min-width: 320px) and (max-width: 767px){
+		#page-dashboard .box h5{
+			font-size: 20px;
+		}
+		#page-dashboard .box p{
+			font-size: 12px;
+		}
+	}
 </style>
-<script type="text/javascript" src="/assets/dashboard/js/frappe-charts/frappe-charts.min.iife.js"></script>
-<script type="text/javascript" src="/assets/dashboard/js/frappe-datatable/frappe-datatable.min.js"></script>
-<script type="text/javascript" src="/assets/dashboard/js/sortablejs/Sortable.min.js"></script>

@@ -30,15 +30,14 @@ frappe.ui.form.on('Dashboard Items', {
         }
     },
     before_save: function(frm) {
-        // var fields = '';
-        // if (frm.doc.type == 'Table') {
-        //     $('input[name=ftd]').each(function() {
-        //         if (this.checked){
-        //             fields += this.value + ',';
-        //         }
-        //     })
-        //     frm.set_value('fields_to_specify', fields)
-        // }
+    },
+    graph_type:function(frm){
+        if(frm.doc.graph_type){
+            if(frm.doc.graph_type=='Pie' || frm.doc.graph_type=='Percentage')
+                frm.set_df_property("date_fields", "options", condition_field);
+            else
+                frm.set_df_property("date_fields", "options", date_fields);
+        }
     }
 });
 
@@ -46,8 +45,14 @@ frappe.ui.form.on('Dashboard Conditions', {
     field: function(frm, cdt, cdn) {
         var item = locals[cdt][cdn];
         if (item.field) {
-            var fields = docfields.find(obj => obj.label == item.field);
-            frappe.model.set_value(cdt, cdn, "fieldname", fields.fieldname);
+            var fields = docfields.find(obj => obj.label.trim() == item.field.trim());
+            if(fields){
+                frappe.model.set_value(cdt, cdn, "fieldname", fields.fieldname);
+            }else{
+                let field=get_field_def(item.field)
+                if(field)
+                    frappe.model.set_value(cdt, cdn, "fieldname", field.fieldname);
+            }            
         }
     }
 });
@@ -57,9 +62,18 @@ frappe.ui.form.on('Table Fields', {
         var item = locals[cdt][cdn];
         if (item.field) {
             var fields = docfields.find(obj => obj.label == item.field);
-            frappe.model.set_value(cdt, cdn, "fieldname", fields.fieldname);
-            frappe.model.set_value(cdt, cdn, "fieldtype", fields.label);
-            frappe.model.set_value(cdt, cdn, "display_name", item.field);
+            if(fields){
+                frappe.model.set_value(cdt, cdn, "fieldname", fields.fieldname);
+                frappe.model.set_value(cdt, cdn, "fieldtype", fields.fieldtype);                
+            }else{
+                let field=get_field_def(item.field)
+                if(field){
+                    frappe.model.set_value(cdt, cdn, "fieldname", field.fieldname);
+                    frappe.model.set_value(cdt, cdn, "fieldtype", field.fieldtype);
+                }
+                
+            }
+            frappe.model.set_value(cdt, cdn, "display_name", item.field);           
         }
     }
 });
@@ -77,8 +91,13 @@ frappe.ui.form.on('Graph Dataset', {
         var item = locals[cdt][cdn];
         if (item.field) {
             var fields = docfields.find(obj => obj.label == item.field);
-
-            frappe.model.set_value(cdt, cdn, "fieldname", fields.fieldname);
+            if(fields){
+                frappe.model.set_value(cdt, cdn, "fieldname", fields.fieldname);
+            }else{
+                let field=get_field_def(item.field)
+                if(field)
+                    frappe.model.set_value(cdt, cdn, "fieldname", field.fieldname);
+            }           
         }
     }
 })
@@ -96,19 +115,23 @@ var get_doc_fields = function(frm, doctype) {
                     if ((v.fieldtype != 'Section Break' && v.fieldtype != 'Column Break')) {
                         condition_field.push(v.label)
                     }
-                    if ((v.fieldtype == 'Int' || v.fieldtype == 'Float' || v.fieldtype == 'Currency') && v.hidden == 0)
+                    if ((v.fieldtype == 'Int' || v.fieldtype == 'Float' || v.fieldtype == 'Currency') && v.hidden == 0 && v.fieldname!='docstatus')
                         numeric_fields.push(v.label)
                     if (v.fieldtype == 'Date' || v.fieldtype == 'Datetime')
                         date_fields.push(v.label)
-                    if((v.fieldtype != 'Section Break' && v.fieldtype != 'Column Break')){
-                    	docfields.push(v);
+                    if((v.fieldtype != 'Section Break' && v.fieldtype != 'Column Break' && v.fieldtype !='Table')){
+                        docfields.push(v);
                     }
                     if ((v.fieldtype != 'Section Break' && v.fieldtype != 'Column Break' && v.fieldtype != 'Table' && v.fieldtype != 'HTML') && v.hidden == 0)
                         table_fields.push(v.label);
                 });
                 frappe.meta.get_docfield('Dashboard Conditions', 'field', cur_frm.doc.name).options = condition_field;
                 frappe.meta.get_docfield('Table Fields', 'field', cur_frm.doc.name).options = table_fields;
-                frm.set_df_property("date_fields", "options", date_fields);
+                frm.set_df_property("value_fields", "options", numeric_fields);
+                if(frm.doc.graph_type=='Pie' || frm.doc.graph_type=='Percentage')
+                    frm.set_df_property("date_fields", "options", condition_field);
+                else
+                    frm.set_df_property("date_fields", "options", date_fields);
                 frappe.meta.get_docfield('Graph Dataset', 'field', cur_frm.doc.name).options = condition_field;
                 get_fields(frm, docfields)
             }
@@ -193,16 +216,13 @@ var get_fields = function(frm, docfields) {
     $(docfields).each(function(k, v) {
         if ((v.fieldtype != 'Section Break' && v.fieldtype != 'Column Break') && v.hidden == 0)
             html += '<div class="col-md-6"><div class="checkbox"><label><span class="input-area"><input\
-			 type="checkbox" autocomplete="off" class="input-with-feedback" name="ftd" label="' + v.label + '"\
-			  value="' + v.fieldname + '" /></span><span class="disp-area" style="display:none"><i \
-			  class="octicon octicon-check" style="margin-right: 3px;"></i></span><span \
-			  class="label-area small">' + v.label + '</span></label><p class="help-box \
-			  small text-muted"></p></div></div>';
+             type="checkbox" autocomplete="off" class="input-with-feedback" name="ftd" label="' + v.label + '"\
+              value="' + v.fieldname + '" /></span><span class="disp-area" style="display:none"><i \
+              class="octicon octicon-check" style="margin-right: 3px;"></i></span><span \
+              class="label-area small">' + v.label + '</span></label><p class="help-box \
+              small text-muted"></p></div></div>';
     });
     html += '</div>';
-    // $('div[data-fieldname="fields_html"]').html(html)
-    // $('div[data-fieldname="fields_html"] .checkbox').css('margin-top', '5px');
-    // $('div[data-fieldname="fields_html"] .checkbox').css('margin-bottom', '5px');
     if (frm.doc.fields_to_specify) {
         fields = frm.doc.fields_to_specify.split(',');
         $(fields).each(function(k, v) {
@@ -211,4 +231,28 @@ var get_fields = function(frm, docfields) {
             }
         })
     }
+}
+
+var get_field_def=function(field){
+    let field_details={};
+    if(field=='Name'){
+        field_details.fieldname='name';
+        field_details.fieldtype='Link';
+    }else if(field=='Created On'){
+        field_details.fieldname='creation';
+        field_details.fieldtype='Datetime';
+    }else if(field=='Modified On'){
+        field_details.fieldname='modified';
+        ffield_details.ieldtype='Datetime';
+    }else if(field=='Created By'){
+        field_details.fieldname='owner';
+        field_details.fieldtype='Link';
+    }else if(field=='Modified By'){
+        field_details.fieldname='modified_by';
+        field_details.fieldtype='Link';
+    }else if(field=='Document Status'){
+        field_details.fieldname='docstatus';
+        field_details.fieldtype='Int';
+    }
+    return field_details
 }

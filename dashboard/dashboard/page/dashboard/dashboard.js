@@ -99,7 +99,7 @@ var get_listings = function(module,name) {
     })
 }
 
-var draw_graph = function(id, title, label, datasets, color, type) {
+var draw_graph = function(id, title, label, datasets, color, type, graph) {
     var data = {
         datasets: datasets,
         labels: label
@@ -119,8 +119,19 @@ var draw_graph = function(id, title, label, datasets, color, type) {
         title: title,
         data: data,
         type: type,
-        height: 300,
-        colors: color
+        height: graph.height ? graph.height : 240,
+        colors: color,
+        barOptions: {
+            spaceRatio: graph.space_ratio ? graph.space_ratio : 0.2
+        },
+        lineOptions: {
+            dotSize: graph.dot_size ? graph.dot_size : 4,
+            hideDots:graph.hide_dots ? graph.hide_dots : 0,
+            hideLine:graph.hide_line ? graph.hide_line : 0,
+            heatline:graph.heat_line ? graph.heat_line :0
+        },
+        valuesOverPoints:graph.values_over_points ? graph.values_over_points : 0,
+        isNavigable:graph.navigate ? graph.navigate : 0
     })
 }
 
@@ -172,7 +183,7 @@ var get_dashboard_items=function(name){
                         })
                         construct_table(v.table.fields, v.table.data, v.table.id)
                     }else if(v.type=="Graph"){
-                        draw_graph('#'+v.graph.id, v.graph.title, v.graph.label, v.graph.dataset, v.graph.color, v.graph.type)
+                        draw_graph('#'+v.graph.id, v.graph.title, v.graph.label, v.graph.dataset, v.graph.color, v.graph.type,v.graph)
                     }               
                 })
             }

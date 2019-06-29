@@ -4,11 +4,11 @@ from . import __version__ as app_version
 
 app_name = "dashboard"
 app_title = "Dashboard"
-app_publisher = "info@valiantsystems.com"
+app_publisher = "Tridots Tech"
 app_description = "Dynamic dashboard"
-app_icon = "octicon octicon-file-directory"
-app_color = "grey"
-app_email = "infor @gmail.com"
+app_icon = "octicon octicon-dashboard"
+app_color = "lightseagreen"
+app_email = "info@valiantsystems.com"
 app_license = "MIT"
 
 # Includes in <head>
@@ -24,7 +24,12 @@ app_license = "MIT"
 
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
-
+page_js={
+	"dashboard":[
+		"public/js/frappe-charts/frappe-charts.min.iife.js",
+		"public/js/frappe-datatable/frappe-datatable.min.js"
+	]
+}
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}

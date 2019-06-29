@@ -48,34 +48,38 @@ def set_counter_query(self):
 				query+=' where '
 			else:
 				query+=' and '
-			operator=''
-			if cond.condition=='Equals':
-				cond.condition_symbol='='
-				query+='doc.{field} = "{value}"'.format(field=cond.fieldname,value=cond.value)
-				print query
-			elif cond.condition=='Not Equals':
-				cond.condition_symbol='!='
-				query+='doc.{field} != "{value}"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='Like':
-				cond.condition_symbol='like'
-				query+='doc.{field} like "%{value}%"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='Not Like':
-				cond.condition_symbol='not like'
-				query+='doc.{field} not like "%{value}%"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='In':
-				cond.condition_symbol='in'
-				values=cond.value.split('\n')
-				val='"'+'","'.join(values)+'"'
-				query+='{field} in ({value})'.format(field=cond.fieldname,value=val)
-			elif cond.condition=='Not In':
-				cond.condition_symbol='not in'
-				values=cond.value.split('\n')
-				val='"'+'","'.join(values)+'"'
-				query+='{field} not in ({value})'.format(field=cond.fieldname,value=val)
-			else:
-				cond.condition_query=cond.condition
-				query+='doc.{field} {operator} "{value}"'.format(field=cond.fieldname,operator=cond.condition,value=cond.value)
-	
+			conditions=get_cond_query(cond)
+			if conditions:
+				query+=conditions	
+	return query
+
+def get_cond_query(cond):
+	query=''
+	if cond.condition=='Equals':
+		cond.condition_symbol='='
+		query+='doc.{field} = "{value}"'.format(field=cond.fieldname,value=cond.value)
+	elif cond.condition=='Not Equals':
+		cond.condition_symbol='!='
+		query+='doc.{field} != "{value}"'.format(field=cond.fieldname,value=cond.value)
+	elif cond.condition=='Like':
+		cond.condition_symbol='like'
+		query+='doc.{field} like "%{value}%"'.format(field=cond.fieldname,value=cond.value)
+	elif cond.condition=='Not Like':
+		cond.condition_symbol='not like'
+		query+='doc.{field} not like "%{value}%"'.format(field=cond.fieldname,value=cond.value)
+	elif cond.condition=='In':
+		cond.condition_symbol='in'
+		values=cond.value.split('\n')
+		val='"'+'","'.join(values)+'"'
+		query+='{field} in ({value})'.format(field=cond.fieldname,value=val)
+	elif cond.condition=='Not In':
+		cond.condition_symbol='not in'
+		values=cond.value.split('\n')
+		val='"'+'","'.join(values)+'"'
+		query+='{field} not in ({value})'.format(field=cond.fieldname,value=val)
+	else:
+		cond.condition_query=cond.condition
+		query+='doc.{field} {operator} "{value}"'.format(field=cond.fieldname,operator=cond.condition,value=cond.value)
 	return query
 
 @frappe.whitelist()
@@ -86,6 +90,11 @@ def set_table_query(self):
 	else:
 		query+='*'
 	query+=' from `tab{doctype}`'.format(doctype=self.reference_doctype)
+	query=assign_conditions(self,query)
+	return query
+	
+@frappe.whitelist()
+def assign_conditions(self,query):
 	if self.conditions:
 		docfields=frappe.get_meta(self.reference_doctype).get("fields")
 		for cond in self.conditions:
@@ -95,72 +104,41 @@ def set_table_query(self):
 				query+=' where '
 			else:
 				query+=' and '
-			operator=''
-			if cond.condition=='Equals':
-				cond.condition_symbol='='
-				query+='{field} = "{value}"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='Not Equals':
-				cond.condition_symbol='!='
-				query+='{field} != "{value}"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='Like':
-				cond.condition_symbol='like'
-				query+='{field} like "%{value}%"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='Not Like':
-				cond.condition_symbol='not like'
-				query+='{field} not like "%{value}%"'.format(field=cond.fieldname,value=cond.value)
-			elif cond.condition=='In':
-				values=cond.value.split('\n')
-				val='"'+'","'.join(values)+'"'
-				cond.condition_symbol='in'
-				query+='{field} in ({value})'.format(field=cond.fieldname,value=val)
-			elif cond.condition=='Not In':
-				cond.condition_symbol='not in'
-				values=cond.value.split('\n')
-				val='"'+'","'.join(values)+'"'
-				query+='{field} not in ({value})'.format(field=cond.fieldname,value=val)
-			else:
-				cond.condition_symbol=cond.condition
-				query+='{field} {operator} "{value}"'.format(field=cond.fieldname,operator=cond.condition,value=cond.value)
+			conditions=get_cond_query(cond)
+			if conditions:
+				query+=conditions
 	return query
 
 @frappe.whitelist()
 def assign_condition_query(self):
+	query=''
+	docfields=frappe.get_meta(self.reference_doctype).get("fields")
 	if self.datasets:
-		for item in self.datasets:
-			query=''
-			if self.conditions:
-				docfields=frappe.get_meta(self.reference_doctype).get("fields")
+		for item in self.datasets:			
+			if self.conditions:				
 				for c in self.conditions:
 					if not c.fieldtype:
 						c.fieldtype=next((x.fieldtype for x in docfields if x.fieldname==c.fieldname),None)
 					if c.condition_for==item.name:
 						query+=' and '
-						if c.condition=='Equals':
-							c.condition_symbol='='
-							query+='`{field}`="{value}"'.format(field=c.fieldname,value=c.value)
-						elif c.condition=='Not Equals':
-							c.condition_symbol='!='
-							query+='`{field}`!="{value}"'.format(field=c.fieldname,value=c.value)
-						elif c.condition=='Like':
-							c.condition_symbol='like'
-							query+='`{field}`!="%{value}%"'.format(field=c.fieldname,value=c.value)
-						elif c.condition=='Not Like':
-							c.condition_symbol='not like'
-							query+='`{field}`!="%{value}%"'.format(field=c.fieldname,value=c.value)
-						elif c.condition=='In':
-							c.condition_symbol='in'
-							values=cond.value.split('\n')
-							val='"'+'","'.join(values)+'"'
-							query+='{field} in ({value})'.format(field=c.fieldname,value=val)
-						elif c.condition=='Not In':
-							c.condition_symbol='not in'
-							values=cond.value.split('\n')
-							val='"'+'","'.join(values)+'"'
-							query+='{field} not in ({value})'.format(field=c.fieldname,value=val)
-						else:
-							c.condition_symbol=c.condition
-							query+='{field} {operator} "{value}"'.format(field=c.fieldname,operator=cond.condition,value=cond.value)
+						conditions=get_cond_query(c)
+						if conditions:
+							query+=conditions
 			item.condition_query=query
+	else:
+		query='select '
+		datef=next((x.fieldname for x in docfields if x.label==self.date_fields),None)
+		if self.value_type=='Count':
+			query+='count(*) as value'
+		elif self.value_type=='Sum':
+			field=next((x.fieldname for x in docfields if x.label==self.value_fields),None)
+			query+='sum({field}) as value'.format(field=field)
+		query+=',{field} as label from `tab{doctype}`'.format(doctype=self.reference_doctype,field=datef)
+		query=assign_conditions(self,query)		
+		query+=' group by {field}'.format(field=datef)
+		query+=' order by value {type}'.format(type=('asc' if self.order_by=='Ascending' else 'desc'))
+		query+=' limit {limit}'.format(limit=(self.no_of_graph_records if self.no_of_graph_records>0 else 10))
+		self.query_field=query
 
 
 @frappe.whitelist()

@@ -1,12 +1,12 @@
 {% if content %}
 <div class="row">
     {% for item in content %}
-    <div class="col-md-{{item.column_width}} list">
+    <div class="col-md-{{item.column_width}} list clearfix">
         {% if item.type=="Counter" %}
             {% if item.counter_list %}
-            <div class="row">
+            <!-- <div class="row"> -->
                 {% for c in item.counter_list %}
-                <div class="{% if item.no_of_counters=="4" %}col-md-3{% else %}{% if item.no_of_counters=="3" %}col-md-4{% else %}col-md-6{% endif %}{% endif %}">
+                <div class="{% if item.counter_class %}{{item.counter_class}}{% else %}col-md-6{% endif %}">
                     <div class="box" {% if c.css %}style="{{c.css}}"{% endif %}>
                         <div>
                             <h5>{{c.count}}</h5>
@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 {% endfor %}
-            </div>
+            <!-- </div> -->
             {% endif %}
         {% else %}
             {% if item.type=="Graph" %}
@@ -28,6 +28,7 @@
                 {% endif %}
             {% else %}
                 {% if item.table %}
+                <h5>{{item.table.title}}</h5>
                 <div id="{{item.table.id}}" class="table-items"></div>            
                 {% endif %}
             {% endif %}
