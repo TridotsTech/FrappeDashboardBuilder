@@ -146,23 +146,6 @@ var construct_table = function(fields, values, id) {
         var txt=$(this).text().replace(/\_/g,' ')
         $(this).text(txt)
     })
-    // let ex=new DataTable('#example1',{
-    //     columns:[{
-    //         name:'Status',
-    //         id:'status',
-    //         format:(value)=>{
-    //             if(value=='Success'){
-    //                 return value.bold()
-    //             }else{
-    //                 return value
-    //             }
-    //         }
-    //     }],
-    //     data: [
-    //         ['Success'],
-    //         ['Failure']
-    //     ]
-    // })
 }
 
 var get_dashboard_items=function(name){
@@ -189,4 +172,30 @@ var get_dashboard_items=function(name){
             }
         }
     })
+}
+
+var oncounterclick=function(e){
+    let id=$(e).attr('data-id');
+    if(id){
+        frappe.call({
+            method:'dashboard.dashboard.page.dashboard.dashboard.get_counter_info',
+            args:{
+                counter:id
+            },
+            callback:function(r){
+                console.log(r.message)
+                if(r.message){
+                    let filters=r.message.filters;
+                    // if(r.message.conditions){
+                    //     $(r.message.conditions).each(function(k,v){
+                    //         console.log(v)
+                    //         filters[v.fieldname]=[v.condition_symbol,v.value];
+                    //     })
+                    // }
+                    console.log(filters)
+                    frappe.set_route('List',r.message.doctype,filters)
+                }
+            }
+        })
+    }
 }

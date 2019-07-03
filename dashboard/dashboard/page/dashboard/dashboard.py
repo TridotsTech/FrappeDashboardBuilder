@@ -79,10 +79,10 @@ def get_counters_new(counters_list):
 				filters.append(filt2)
 			result=frappe.get_list(dash.reference_doctype,fields=['*'],filters=filters,ignore_permissions=ignore_permissions,limit_page_length=res[0].count)
 			if dash.counter_type=='Count':
-				counter.append({'title':dash.display_text,'count':len(result),'css':dash.css_style})
+				counter.append({'title':dash.display_text,'count':len(result),'css':dash.css_style,'name':dash.name})
 			else:
 				total=sum(res[dash.referred_field] for res in result)
-				counter.append({'title':dash.display_text,'count':("%0.2f" % total),'css':dash.css_style})
+				counter.append({'title':dash.display_text,'count':("%0.2f" % total),'css':dash.css_style,'name':dash.name})
 	return counter
 
 @frappe.whitelist()
@@ -171,7 +171,7 @@ def get_table_new(table_list):
 					ftype='Link'
 				else:
 					docs=next((x.options for x in docfields if x.fieldname==fi.fieldname))
-				new_fld={'id':fi.fieldname,'name':fi.display_name,'resizable':fi.resizable,'sortable':fi.sortable,'focusable':fi.focusable}
+				new_fld={'id':fi.fieldname,'name':fi.display_name,'resizable':fi.resizable,'sortable':fi.sortable,'focusable':fi.focusable,'editable':0}
 				if fi.format:
 					format_data='(value)=>{'
 					format_data+='{format_data}'.format(format_data=fi.format)
@@ -213,3 +213,16 @@ def get_conditions(conditions):
 		else:
 			fil.append(conditions.value)
 	return fil
+
+@frappe.whitelist()
+def get_counter_info(counter):
+	counter_info=frappe.db.get_all('Dashboard Items',filters={'name':counter},fields=['reference_doctype','name','date_range'])
+	if counter_info:
+		conditions=frappe.db.get_all('Dashboard Conditions',filters={'parent':counter_info[0].name},fields=['fieldname','condition_symbol','value'])
+		filters={}
+		if conditions:
+			for item in conditions:
+				filters[item.fieldname]=[item.condition_symbol,item.value]
+		# if date_range=='Daily':
+		# 	filters['creation']=[]
+		return {'doctype':counter_info[0].reference_doctype,'filters':filters}

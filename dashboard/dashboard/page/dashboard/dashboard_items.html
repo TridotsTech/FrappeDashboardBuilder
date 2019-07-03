@@ -6,7 +6,7 @@
             {% if item.counter_list %}
             <!-- <div class="row"> -->
                 {% for c in item.counter_list %}
-                <div class="{% if item.counter_class %}{{item.counter_class}}{% else %}col-md-6{% endif %}">
+                <div class="{% if item.counter_class %}{{item.counter_class}}{% else %}col-md-6{% endif %}" onclick="oncounterclick(this)" data-id="{{c.name}}">
                     <div class="box" {% if c.css %}style="{{c.css}}"{% endif %}>
                         <div>
                             <h5>{{c.count}}</h5>
