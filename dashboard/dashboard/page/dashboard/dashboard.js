@@ -114,7 +114,9 @@ var draw_graph = function(id, title, label, datasets, color, type, graph) {
     }
     if (type == 'mixed charts')
         type = 'axis-mixed'
-    
+    let tooltip='';
+    if(graph.currency)
+        tooltip=graph.currency_symbol+' ';
     let chart = new frappeCharts.Chart(id, {
         title: title,
         data: data,
@@ -131,11 +133,16 @@ var draw_graph = function(id, title, label, datasets, color, type, graph) {
             heatline:graph.heat_line ? graph.heat_line :0
         },
         valuesOverPoints:graph.values_over_points ? graph.values_over_points : 0,
-        isNavigable:graph.navigate ? graph.navigate : 0
+        isNavigable:graph.navigate ? graph.navigate : 0,
+        tooltipOptions:{
+            formatTooltipX:d=>(d+'').toUpperCase(),
+            formatTooltipY:d=>(tooltip+''+d)
+        }
     })
 }
 
-var construct_table = function(fields, values, id) {    
+var construct_table = function(fields, values, id) {
+    console.log(fields)
     let datatable = new DataTable('#' + id, {
         columns: fields,
         data: values,
@@ -163,6 +170,10 @@ var get_dashboard_items=function(name){
                             if(j.format){
                                 j.format=(eval(j.format))
                             }
+                            j.editable=j.editable ? true : false;
+                            j.focusable=j.focusable ? true : false;
+                            j.sortable=j.sortable ? true : false;
+                            j.resizable=j.resizable ? true : false;
                         })
                         construct_table(v.table.fields, v.table.data, v.table.id)
                     }else if(v.type=="Graph"){
@@ -186,13 +197,6 @@ var oncounterclick=function(e){
                 console.log(r.message)
                 if(r.message){
                     let filters=r.message.filters;
-                    // if(r.message.conditions){
-                    //     $(r.message.conditions).each(function(k,v){
-                    //         console.log(v)
-                    //         filters[v.fieldname]=[v.condition_symbol,v.value];
-                    //     })
-                    // }
-                    console.log(filters)
                     frappe.set_route('List',r.message.doctype,filters)
                 }
             }

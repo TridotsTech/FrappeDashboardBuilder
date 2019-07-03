@@ -89,7 +89,9 @@ def get_counters_new(counters_list):
 def get_graph_new(graph_list):
 	months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 	today=getdate(nowdate())
-	chartslist=[]	
+	chartslist=[]
+	default_currency=frappe.db.get_single_value('Catalog Settings','default_currency')
+	currency_symbol=frappe.get_value('Currency',default_currency,'symbol')
 	if graph_list:
 		for item in graph_list:
 			chart=frappe.get_doc('Dashboard Items',item.name)
@@ -97,6 +99,7 @@ def get_graph_new(graph_list):
 			color=[]
 			datasets=[]			
 			docfields=frappe.get_meta(chart.reference_doctype).get("fields")
+			currency=False
 			if chart.datasets:
 				for it in chart.datasets:
 					d_val=[]
@@ -126,10 +129,12 @@ def get_graph_new(graph_list):
 							d_val.append(("%0.2f" % total))
 						else:
 							d_val.append(len(result))
+						if docs=='Currency':
+							currency=True
 					datasets.append({'values':d_val,'name':it.label,'chartType':it.chart_type.lower()})
 					color.append(it.color)
 				ids=item.name.replace(' ','').lower()
-				chartslist.append({'label':months,'dataset':datasets,'title':chart.display_text,'id':ids,'color':color,'type':chart.graph_type.lower(),'size':item.display_type,'dot_size':item.dot_size,'space_ratio':item.space_ratio,'hide_dots':item.hide_dots,'hide_line':item.hide_line,'heat_line':item.heat_line,'values_over_points':item.values_over_points,'navigate':item.navigate,'height':item.chart_height})
+				chartslist.append({'label':months,'dataset':datasets,'title':chart.display_text,'id':ids,'color':color,'type':chart.graph_type.lower(),'size':item.display_type,'dot_size':item.dot_size,'space_ratio':item.space_ratio,'hide_dots':item.hide_dots,'hide_line':item.hide_line,'heat_line':item.heat_line,'values_over_points':item.values_over_points,'navigate':item.navigate,'height':item.chart_height,'currency':currency,'currency_symbol':currency_symbol})
 			else:
 				filters=[]
 				if chart.query_field:
@@ -152,7 +157,7 @@ def get_table_new(table_list):
 	today=getdate(nowdate())
 	now=datetime.now()
 	if table_list:
-		default_currency=frappe.db.get_single_value('Global Defaults','default_currency')
+		default_currency=frappe.db.get_single_value('Catalog Settings','default_currency')
 		currency=frappe.get_value('Currency',default_currency,'symbol')
 		for item in table_list:
 			table=frappe.get_doc('Dashboard Items',item.name)
@@ -223,6 +228,4 @@ def get_counter_info(counter):
 		if conditions:
 			for item in conditions:
 				filters[item.fieldname]=[item.condition_symbol,item.value]
-		# if date_range=='Daily':
-		# 	filters['creation']=[]
 		return {'doctype':counter_info[0].reference_doctype,'filters':filters}
