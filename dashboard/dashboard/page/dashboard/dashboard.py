@@ -90,8 +90,14 @@ def get_graph_new(graph_list):
 	months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 	today=getdate(nowdate())
 	chartslist=[]
-	default_currency=frappe.db.get_single_value('Catalog Settings','default_currency')
-	currency_symbol=frappe.get_value('Currency',default_currency,'symbol')
+	if frappe.db.get_value('DocType','Catalog Settings'):
+		default_currency=frappe.db.get_single_value('Catalog Settings','default_currency')
+		currency_symbol=frappe.get_value('Currency',default_currency,'symbol')
+	elif frappe.db.get_value('DocType','Global Defaults'):
+		default_currency=frappe.db.get_single_value('Global Defaults','default_currency')
+		currency_symbol=frappe.get_value('Currency',default_currency,'symbol')
+	else:
+		currency_symbol=None
 	if graph_list:
 		for item in graph_list:
 			chart=frappe.get_doc('Dashboard Items',item.name)
@@ -157,8 +163,14 @@ def get_table_new(table_list):
 	today=getdate(nowdate())
 	now=datetime.now()
 	if table_list:
-		default_currency=frappe.db.get_single_value('Catalog Settings','default_currency')
-		currency=frappe.get_value('Currency',default_currency,'symbol')
+		if frappe.db.get_value('DocType','Catalog Settings'):
+			default_currency=frappe.db.get_single_value('Catalog Settings','default_currency')
+			currency=frappe.get_value('Currency',default_currency,'symbol')
+		elif frappe.db.get_value('DocType','Global Defaults'):
+			default_currency=frappe.db.get_single_value('Global Defaults','default_currency')
+			currency=frappe.get_value('Currency',default_currency,'symbol')
+		else:
+			currency=None		
 		for item in table_list:
 			table=frappe.get_doc('Dashboard Items',item.name)
 			ignore_permissions=False if table.check_user_permissions else True
