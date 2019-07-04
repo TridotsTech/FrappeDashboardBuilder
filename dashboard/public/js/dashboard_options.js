@@ -10,18 +10,21 @@ dashboard.DashboardOptions = Class.extend({
         this.module=opts.module;        
 
         let d = this.item;
-        if (opts.dashboard_type == 'counter')
-            this.counter = 1;
-        else if(opts.dashboard_type=='graph')
-            this.graph=1;
-        else if(opts.dashboard_type=='list')
-            this.list=1;
+        // if (opts.dashboard_type == 'counter')
+        //     this.counter = 1;
+        // else if(opts.dashboard_type=='graph')
+        //     this.graph=1;
+        // else if(opts.dashboard_type=='list')
+        //     this.list=1;
 
         this.query='';
         this.user_permission=false;
         this.query_conditions=[];        
         this.number_fields=[];
-        this.setup();     
+        this.select_fields=opts.select_fields;
+        this.cdt=opts.cdt;
+        this.cdn=opts.cdn;
+        this.setup();
     },
 
     setup: function() {
