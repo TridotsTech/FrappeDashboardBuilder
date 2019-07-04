@@ -144,15 +144,15 @@ var get_child_docs = function(frm, doctype) {
         args: { doctype: doctype },
         callback: function(data, rt) {
             if (data.message) {
-                condition_field = [];
+                table_fields = [];
                 var numeric_fields = [];
                 docfields = data.message;
                 $(data.message).each(function(k, v) {
                     if ((v.fieldtype == 'Table')) {
-                        condition_field.push(v.options)
+                        table_fields.push(v.options)
                     }
                 })
-                frm.set_df_property('reference_child_doc_name', 'options', condition_field.join("\n"));
+                frm.set_df_property('reference_child_doc_name', 'options', table_fields.join("\n"));
             }
         }
     })
