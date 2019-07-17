@@ -106,6 +106,7 @@ def get_graph_new(graph_list):
 			datasets=[]			
 			docfields=frappe.get_meta(chart.reference_doctype).get("fields")
 			currency=False
+			ignore_permissions=False if chart.check_user_permissions else True
 			if chart.datasets:
 				for it in chart.datasets:
 					d_val=[]
@@ -114,8 +115,7 @@ def get_graph_new(graph_list):
 						month=month+1
 						st_date=datetime(year=today.year,day=01,month=month)
 						next_month = st_date.replace(day=28) + timedelta(days=4)
-						ed_date=next_month - timedelta(days=next_month.day)
-						ignore_permissions=False if chart.check_user_permissions else True
+						ed_date=next_month - timedelta(days=next_month.day)						
 						filters_g=[]
 						if chart.conditions:
 							for c in chart.conditions:
@@ -143,19 +143,34 @@ def get_graph_new(graph_list):
 				chartslist.append({'label':months,'dataset':datasets,'title':chart.display_text,'id':ids,'color':color,'type':chart.graph_type.lower(),'size':item.display_type,'dot_size':item.dot_size,'space_ratio':item.space_ratio,'hide_dots':item.hide_dots,'hide_line':item.hide_line,'heat_line':item.heat_line,'values_over_points':item.values_over_points,'navigate':item.navigate,'height':item.chart_height,'currency':currency,'currency_symbol':currency_symbol})
 			else:
 				filters=[]
-				if chart.query_field:
-					results=frappe.db.sql('''{query}'''.format(query=chart.query_field),as_dict=1)
-					label=[res.label for res in results]
-					value=[res.value for res in results]
-					ids=item.name.replace(' ','').lower()
-					datasets=[]
-					datasets.append({'values':value,'name':'Test','chartType':chart.graph_type.lower()})
-					colors=[]
-					if chart.color:
-						colors.append(chart.color.split('\n'))
-					chartslist.append({'label':label,'dataset':datasets,'title':chart.display_text,'id':ids,'color':colors,'type':chart.graph_type.lower()})
-				
-		return chartslist
+				docs=next((x.fieldname for x in docfields if x.label==chart.date_fields),None)
+				query='''select distinct {date_fields} from `tab{doctype}` '''.format(date_fields=docs,doctype=chart.reference_doctype)
+				distinct_records = frappe.db.sql(query,as_dict=1)
+				results=[]				
+				for dis in distinct_records:
+					filters=[]
+					if chart.conditions:
+						for c in chart.conditions:
+							if c.condition_for==it.name:
+								filters.append(get_conditions(c))
+					fil=[docs,'=',dis.status]
+					filters.append(fil)
+					response=frappe.get_list(chart.reference_doctype,filters=filters,fields=[docs],ignore_permissions=ignore_permissions,limit_page_length=res[0].count)
+					if chart.value_type=='Count':
+						results.append({'label':dis.status,'value':len(response)})
+					else:
+						total=sum(res[docs] for res in response)
+						results.append({'label':dis,'value':total})
+				label=[res['label'] for res in results]
+				value=[res['value'] for res in results]
+				ids=item.name.replace(' ','').lower()
+				datasets=[]
+				datasets.append({'values':value,'name':'Test','chartType':chart.graph_type.lower()})
+				colors=[]
+				if chart.color:
+					colors.append(chart.color.split('\n'))
+				chartslist.append({'label':label,'dataset':datasets,'title':chart.display_text,'id':ids,'color':colors,'type':chart.graph_type.lower()})
+	return chartslist
 
 @frappe.whitelist()
 def get_table_new(table_list):
