@@ -60,8 +60,16 @@ def get_counters_new(counters_list):
 				for c in dash.conditions:
 					filters.append(get_conditions(c))
 			if dash.date_range=='Daily':
-				fil1=["creation","=",today]
+				st_start_date=datetime(year=today.year,day=today.day,month=today.month)
+				st_enddate=datetime(year=today.year,day=today.day,month=today.month)
+				next_date = st_enddate+ timedelta(days=1)
+				fil1=["creation",">=",st_start_date]
+				fil1=["creation","<",next_date]
+				print "================fil1============"
+				print fil1
 				filters.append(fil1)
+				print "====filters====="
+				print filters
 			elif dash.date_range=='Monthly':
 				st_date=datetime(year=today.year,day=01,month=today.month)
 				next_month = st_date.replace(day=28) + timedelta(days=4)
@@ -78,11 +86,19 @@ def get_counters_new(counters_list):
 				filters.append(filt1)
 				filters.append(filt2)
 			result=frappe.get_list(dash.reference_doctype,fields=['*'],filters=filters,ignore_permissions=ignore_permissions,limit_page_length=res[0].count)
+			print "====dash.reference_doctype===="
+			print dash.reference_doctype
+			print "============filters=========="
+			print filters
+			print "===========result========="
+			print result
 			if dash.counter_type=='Count':
 				counter.append({'title':dash.display_text,'count':len(result),'css':dash.css_style,'name':dash.name})
 			else:
 				total=sum(res[dash.referred_field] for res in result)
 				counter.append({'title':dash.display_text,'count':("%0.2f" % total),'css':dash.css_style,'name':dash.name})
+	print "=====Count======"
+	print counter
 	return counter
 
 @frappe.whitelist()
