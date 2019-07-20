@@ -86,10 +86,33 @@ var get_listings = function(module,name) {
                 if (data.message.length > 0) {
                     $('#listing').html(frappe.render_template("dashboard_listing", { content: data.message }));
                     $(data.message).each(function(k, v) {
+                        let check_empty=[]
+                        let date_fields=[]
+                        $(v.fields).each(function(i,k){
+                           
+                            check_empty.push(k.id)
+                        })
                         $(v.fields).each(function(i,j){
                             if(j.format){
                                 j.format=(eval(j.format))
                             }
+                            if(j.fieldtype=='Currency')
+                                date_fields.push(j.id);
+                        })
+                        $(v.data).each(function(i,j){
+                            $(date_fields).each(function(x,y){
+                                j[y]=frappe.datetime.str_to_user(j[y]);
+                            })
+                            $(check_empty).each(function(t,s){
+                                if(j[s]!=null){
+                                    j[s]=parseFloat(j[s]) 
+                                    console.log("j[s]")
+                                    console.log(j[s])
+                                }
+                                else{
+                                    j[s]=""
+                                }
+                            })
                         })
                         construct_table(v.fields, v.data, v.id)
                     })
@@ -166,8 +189,12 @@ var get_dashboard_items=function(name){
                 $('#page-dashboard .maindiv').html(frappe.render_template("dashboard_items", { content: data.message }));
                 $(data.message).each(function(k, v) {
                     if(v.type=='Table'){
+                        console.log("v.table")
+                        console.log(v.table)
                         $(v.table.fields).each(function(i,j){
                             if(j.format){
+                                console.log("j.format")
+                                console.log(j.format)
                                 j.format=(eval(j.format))
                             }
                             j.editable=j.editable ? true : false;
@@ -175,6 +202,10 @@ var get_dashboard_items=function(name){
                             j.sortable=j.sortable ? true : false;
                             j.resizable=j.resizable ? true : false;
                         })
+                        parseFloat(v.table.data)
+                        console.log("v.table.data")
+                        console.log(v.table.data)
+                        // console.log(v.table.data)
                         construct_table(v.table.fields, v.table.data, v.table.id)
                     }else if(v.type=="Graph"){
                         draw_graph('#'+v.graph.id, v.graph.title, v.graph.label, v.graph.dataset, v.graph.color, v.graph.type,v.graph)
