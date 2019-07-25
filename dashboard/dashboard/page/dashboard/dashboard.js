@@ -88,8 +88,7 @@ var get_listings = function(module,name) {
                     $(data.message).each(function(k, v) {
                         let check_empty=[]
                         let date_fields=[]
-                        $(v.fields).each(function(i,k){
-                           
+                        $(v.fields).each(function(i,k){                           
                             check_empty.push(k.id)
                         })
                         $(v.fields).each(function(i,j){
@@ -105,9 +104,7 @@ var get_listings = function(module,name) {
                             })
                             $(check_empty).each(function(t,s){
                                 if(j[s]!=null){
-                                    j[s]=parseFloat(j[s]) 
-                                    console.log("j[s]")
-                                    console.log(j[s])
+                                    j[s]=parseFloat(j[s])
                                 }
                                 else{
                                     j[s]=""
@@ -165,7 +162,6 @@ var draw_graph = function(id, title, label, datasets, color, type, graph) {
 }
 
 var construct_table = function(fields, values, id) {
-    console.log(fields)
     let datatable = new DataTable('#' + id, {
         columns: fields,
         data: values,
@@ -188,24 +184,16 @@ var get_dashboard_items=function(name){
             if (data.message) {
                 $('#page-dashboard .maindiv').html(frappe.render_template("dashboard_items", { content: data.message }));
                 $(data.message).each(function(k, v) {
-                    if(v.type=='Table'){
-                        console.log("v.table")
-                        console.log(v.table)
+                    if(v.type=='Table'){                 
                         $(v.table.fields).each(function(i,j){
-                            if(j.format){
-                                console.log("j.format")
-                                console.log(j.format)
+                            if(j.format){                              
                                 j.format=(eval(j.format))
                             }
                             j.editable=j.editable ? true : false;
                             j.focusable=j.focusable ? true : false;
                             j.sortable=j.sortable ? true : false;
                             j.resizable=j.resizable ? true : false;
-                        })
-                        parseFloat(v.table.data)
-                        console.log("v.table.data")
-                        console.log(v.table.data)
-                        // console.log(v.table.data)
+                        })                   
                         construct_table(v.table.fields, v.table.data, v.table.id)
                     }else if(v.type=="Graph"){
                         draw_graph('#'+v.graph.id, v.graph.title, v.graph.label, v.graph.dataset, v.graph.color, v.graph.type,v.graph)
@@ -225,7 +213,6 @@ var oncounterclick=function(e){
                 counter:id
             },
             callback:function(r){
-                console.log(r.message)
                 if(r.message){
                     let filters=r.message.filters;
                     frappe.set_route('List',r.message.doctype,filters)

@@ -7,6 +7,7 @@ from frappe import _, throw
 from frappe.utils import getdate, add_months, get_last_day, nowdate
 from frappe.utils import flt
 from datetime import datetime, timedelta
+from frappe.utils import now_datetime
 
 @frappe.whitelist()
 def get_dashboard_items(name):
@@ -50,7 +51,7 @@ def get_dashboard_items(name):
 def get_counters_new(counters_list):
 	counter=[]
 	if counters_list:
-		today=getdate(nowdate())
+		today=getdate(nowdate())		
 		for item in counters_list:
 			dash=frappe.get_doc('Dashboard Items',item.name)
 			ignore_permissions=False if dash.check_user_permissions else True
@@ -59,17 +60,10 @@ def get_counters_new(counters_list):
 			if dash.conditions:
 				for c in dash.conditions:
 					filters.append(get_conditions(c))
-			if dash.date_range=='Daily':
-				st_start_date=datetime(year=today.year,day=today.day,month=today.month)
-				st_enddate=datetime(year=today.year,day=today.day,month=today.month)
-				next_date = st_enddate+ timedelta(days=1)
-				fil1=["creation",">=",st_start_date]
-				fil1=["creation","<",next_date]
-				print "================fil1============"
-				print fil1
-				filters.append(fil1)
-				print "====filters====="
-				print filters
+			if dash.date_range=='Daily':	
+				st_start_date=datetime(year=today.year,day=today.day,month=today.month)				
+				fil1=["creation",">=",st_start_date]			
+				filters.append(fil1)				
 			elif dash.date_range=='Monthly':
 				st_date=datetime(year=today.year,day=01,month=today.month)
 				next_month = st_date.replace(day=28) + timedelta(days=4)
@@ -81,24 +75,16 @@ def get_counters_new(counters_list):
 			elif dash.date_range=='Weekly':
 				start = today - timedelta(days=today.weekday())
 				end = start + timedelta(days=6)
-				filt1=["creation",">=",start]
-				filt2=["creation","<=",end]
+				filt1=["creation",">=",start]						
+				filt2=["creation","<=",end]				
 				filters.append(filt1)
 				filters.append(filt2)
-			result=frappe.get_list(dash.reference_doctype,fields=['*'],filters=filters,ignore_permissions=ignore_permissions,limit_page_length=res[0].count)
-			print "====dash.reference_doctype===="
-			print dash.reference_doctype
-			print "============filters=========="
-			print filters
-			print "===========result========="
-			print result
+			result=frappe.get_list(dash.reference_doctype,fields=['*'],filters=filters,ignore_permissions=ignore_permissions,limit_page_length=res[0].count)									
 			if dash.counter_type=='Count':
 				counter.append({'title':dash.display_text,'count':len(result),'css':dash.css_style,'name':dash.name})
 			else:
 				total=sum(res[dash.referred_field] for res in result)
-				counter.append({'title':dash.display_text,'count':("%0.2f" % total),'css':dash.css_style,'name':dash.name})
-	print "=====Count======"
-	print counter
+				counter.append({'title':dash.display_text,'count':("%0.2f" % total),'css':dash.css_style,'name':dash.name})	
 	return counter
 
 @frappe.whitelist()
