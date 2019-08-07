@@ -7,8 +7,8 @@ import frappe
 from frappe.model.document import Document
 
 class DashboardItems(Document):
-	def autoname(self):
-		self.name=self.display_text+' - '+self.type
+	# def autoname(self):
+	# 	self.name=self.display_text+' - '+self.type
 
 	def validate(self):		
 		if self.type=='Counter':

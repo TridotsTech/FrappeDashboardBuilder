@@ -28,7 +28,8 @@
                 {% endif %}
             {% else %}
                 {% if item.table %}
-                <h5>{{item.table.title}}</h5>
+                <h5 style="display: inline-block;">{{item.table.title}}</h5> 
+                <a href = "/desk#List/{{item.table.doctype}}/List"><button type="button" class="btn btn-warning" style="float: right;">View More</button></a>
                 <div id="{{item.table.id}}" class="table-items"></div>            
                 {% endif %}
             {% endif %}

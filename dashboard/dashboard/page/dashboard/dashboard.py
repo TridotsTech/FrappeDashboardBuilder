@@ -19,7 +19,7 @@ def get_dashboard_items(name):
 		if dashboard_items:
 			for item in dashboard_items:
 				if item.type=='Counter':
-					counters_list=frappe.db.get_all('Dashboard Items',filters={'type':'Counter','group':item.dashboard_item},fields=['*'])
+					counters_list=frappe.db.get_all('Dashboard Items',filters={'type':'Counter','group':item.dashboard_item},fields=['*'],order_by='display_order')
 					counter_data=get_counters_new(counters_list)
 					if counter_data:
 						item.counter_list=counter_data

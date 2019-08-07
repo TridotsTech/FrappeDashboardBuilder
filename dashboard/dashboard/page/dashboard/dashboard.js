@@ -182,12 +182,14 @@ var get_dashboard_items=function(name){
         },
         callback: function(data) {
             if (data.message) {
+                // console.log("data.message")
+                // console.log(data.message)
                 $('#page-dashboard .maindiv').html(frappe.render_template("dashboard_items", { content: data.message }));
                 $(data.message).each(function(k, v) {
                     if(v.type=='Table'){                 
                         $(v.table.fields).each(function(i,j){
                             if(j.format){                              
-                                j.format=(eval(j.format))
+                                j.format=eval(j.format)                              
                             }
                             j.editable=j.editable ? true : false;
                             j.focusable=j.focusable ? true : false;
