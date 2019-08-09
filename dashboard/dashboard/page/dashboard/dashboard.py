@@ -56,14 +56,15 @@ def get_counters_new(counters_list):
 			dash=frappe.get_doc('Dashboard Items',item.name)
 			ignore_permissions=False if dash.check_user_permissions else True
 			filters=[]
-			res=frappe.db.sql('''select count(*) as count from `tab{doctype}`'''.format(doctype=dash.reference_doctype),as_dict=1)
+			res=frappe.db.sql('''select count(*) as count from `tab{doctype}`'''.format(doctype=dash.reference_doctype),as_dict=1)			
 			if dash.conditions:
 				for c in dash.conditions:
 					filters.append(get_conditions(c))
 			if dash.date_range=='Daily':	
 				st_start_date=datetime(year=today.year,day=today.day,month=today.month)				
-				fil1=["creation",">=",st_start_date]			
-				filters.append(fil1)				
+				fil1=["creation",">=",st_start_date]
+				fil2=["creation","<=",st_start_date]
+				filters.append(fil1)
 			elif dash.date_range=='Monthly':
 				st_date=datetime(year=today.year,day=01,month=today.month)
 				next_month = st_date.replace(day=28) + timedelta(days=4)
