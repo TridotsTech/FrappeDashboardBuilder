@@ -95,7 +95,7 @@ var get_listings = function(module,name) {
                             if(j.format){
                                 j.format=(eval(j.format))
                             }
-                            if(j.fieldtype=='Currency')
+                            if(j.fieldtype=='Date' || j.fieldtype=='Datetime')
                                 date_fields.push(j.id);
                         })
                         $(v.data).each(function(i,j){
@@ -104,7 +104,8 @@ var get_listings = function(module,name) {
                             })
                             $(check_empty).each(function(t,s){
                                 if(j[s]!=null){
-                                    j[s]=parseFloat(j[s])
+                                    // j[s]=parseFloat(j[s])
+                                    j[s]=j[s]
                                 }
                                 else{
                                     j[s]=""
@@ -182,11 +183,12 @@ var get_dashboard_items=function(name){
         },
         callback: function(data) {
             if (data.message) {
-                // console.log("data.message")
-                // console.log(data.message)
                 $('#page-dashboard .maindiv').html(frappe.render_template("dashboard_items", { content: data.message }));
                 $(data.message).each(function(k, v) {
-                    if(v.type=='Table'){                 
+                    if(v.type=='Table'){
+                        let check_empty=[];
+                        let date_fields=[];
+                        let currency_fields=[];                
                         $(v.table.fields).each(function(i,j){
                             if(j.format){                              
                                 j.format=eval(j.format)                              
@@ -195,7 +197,30 @@ var get_dashboard_items=function(name){
                             j.focusable=j.focusable ? true : false;
                             j.sortable=j.sortable ? true : false;
                             j.resizable=j.resizable ? true : false;
-                        })                   
+                            check_empty.push(k.id)
+                            if(j.fieldtype=='Currency' || j.fieldtype=='Float'){
+                                currency_fields.push(j.id);
+                            }
+                            if(j.fieldtype=='Date' || j.fieldtype=='Datetime'){
+                                date_fields.push(j.id);
+                            }
+                        })
+                        $(v.table.data).each(function(i,j){
+                            $(date_fields).each(function(x,y){
+                                j[y]=frappe.datetime.str_to_user(j[y]);
+                            })
+                            $(currency_fields).each(function(x,y){
+                                j[y]=parseFloat(j[y]).toFixed(2);
+                            })
+                            $(check_empty).each(function(t,s){
+                                if(j[s]!=null){
+                                    j[s]=j[s]   
+                                }
+                                else{
+                                    j[s]=""
+                                }
+                            })
+                        })              
                         construct_table(v.table.fields, v.table.data, v.table.id)
                     }else if(v.type=="Graph"){
                         draw_graph('#'+v.graph.id, v.graph.title, v.graph.label, v.graph.dataset, v.graph.color, v.graph.type,v.graph)

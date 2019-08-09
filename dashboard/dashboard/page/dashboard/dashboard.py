@@ -221,6 +221,7 @@ def get_table_new(table_list):
 						new_fld['align']='right'
 					elif ftype=='Float' or ftype=='Int':
 						new_fld['align']='right'
+					new_fld['fieldtype']=ftype
 				fields.append(fi.fieldname)
 				fields_arr.append(new_fld)
 			res=frappe.get_list(table.reference_doctype,fields=fields,filters=filters,limit_page_length=table.no_of_data,order_by='modified desc',ignore_permissions=ignore_permissions)
